@@ -33,18 +33,37 @@ namespace Doctors_Office.Controllers
         return View(thisDoctor);
       }
 
-      public ActionResult Create()
+      public ActionResult Create(int si = 0)
       {
-        return View();
+        ViewBag.DoctorId = new SelectList(_db.Specialties, "SpecialtyId", "SpecialtyName");
+        if(si == 0)
+        {
+          return View();
+        } 
+        else 
+        {
+          ViewBag.Si = si;
+          return View();
+        }
       }
 
       [HttpPost]
-      public ActionResult Create(Doctor doctor)
+      public ActionResult Create(Doctor doctor, int si = 0)
       {
-        ViewBag.Doctor = doctor;
-        _db.Doctors.Add(doctor);
-        _db.SaveChanges();
-        return RedirectToAction("Index");
+        if(si == 0)
+        {
+          ViewBag.Doctor = doctor;
+          _db.Doctors.Add(doctor);
+          _db.SaveChanges();
+          return RedirectToAction("Index");
+        } else {
+          _db.Doctors.Add(doctor);
+          _db.SaveChanges();
+          // Specialty Ss = _db.Doctors.FirstOrDefault(doctor => doctor.DoctorId == id);
+          _db.DoctorsSpecialties.Add(new DoctorSpecialty() { DoctorId = doctor.DoctorId, SpecialtyId = si });
+          _db.SaveChanges();
+          return RedirectToAction("Details","Specialties", new {id = si});
+        }
       }
 
       public ActionResult Edit(int id)
